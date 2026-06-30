@@ -1,0 +1,22 @@
+category,company_id,computed_value,source_value,diff,note
+Sector Summary,,,,,Financials median ROCE: 4.17% vs Non-Financials: 16.21%. Financials median D/E: 4.39 vs Non-Financials: 0.32. Standard ROCE/D-E distorted for banks/NBFCs due to deposits counted as borrowings. Sector-relative percentile ranking implemented instead.
+Extreme Value - Small Equity Base,BEL,4744.05,,,BEL shows ROE of 4744% due to very small equity capital + reserves base relative to profit. Mathematically correct but requires winsorisation (cap at P10/P90) before use in Health Score or screener ranking.
+Extreme Value - Small Equity Base,HAL,3816.58,,,HAL shows ROE of 3817% due to very small equity capital + reserves base relative to profit. Mathematically correct but requires winsorisation (cap at P10/P90) before use in Health Score or screener ranking.
+ROE Anomaly vs Source,BEL,4744.05,26.3,4717.75,Computed ROE (4744.05%) differs from companies.xlsx source (26.30%) by 4717.75pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,HAL,3816.58,28.9,3787.68,Computed ROE (3816.58%) differs from companies.xlsx source (28.90%) by 3787.68pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,LT,77.67,10.49,67.18,Computed ROE (77.67%) differs from companies.xlsx source (10.49%) by 67.18pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,PNB,61.32,8.7,52.62,Computed ROE (61.32%) differs from companies.xlsx source (8.70%) by 52.62pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,TCS,50.94,0.52,50.42,Computed ROE (50.94%) differs from companies.xlsx source (0.52%) by 50.42pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,NESTLEIND,117.75,135.61,17.86,Computed ROE (117.75%) differs from companies.xlsx source (135.61%) by 17.86pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,LICI,49.45,63.61,14.16,Computed ROE (49.45%) differs from companies.xlsx source (63.61%) by 14.16pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,BAJAJFINSV,25.85,11.72,14.13,Computed ROE (25.85%) differs from companies.xlsx source (11.72%) by 14.13pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,TATAMOTORS,37.46,49.4,11.94,Computed ROE (37.46%) differs from companies.xlsx source (49.40%) by 11.94pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,TATASTEEL,-5.33,6.55,11.88,Computed ROE (-5.33%) differs from companies.xlsx source (6.55%) by 11.88pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,GODREJCP,-4.45,6.77,11.22,Computed ROE (-4.45%) differs from companies.xlsx source (6.77%) by 11.22pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,TRENT,36.31,27.2,9.11,Computed ROE (36.31%) differs from companies.xlsx source (27.20%) by 9.11pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,ADANIPOWER,48.28,57.1,8.82,Computed ROE (48.28%) differs from companies.xlsx source (57.10%) by 8.82pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,COALINDIA,45.17,52.0,6.83,Computed ROE (45.17%) differs from companies.xlsx source (52.00%) by 6.83pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,PFC,26.16,19.49,6.67,Computed ROE (26.16%) differs from companies.xlsx source (19.49%) by 6.67pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,BPCL,35.51,41.9,6.39,Computed ROE (35.51%) differs from companies.xlsx source (41.90%) by 6.39pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,IRCTC,34.4,40.4,6.0,Computed ROE (34.40%) differs from companies.xlsx source (40.40%) by 6.00pp. TCS confirmed as known source data entry error per project documentation.
+ROE Anomaly vs Source,ADANIENT,8.53,13.64,5.11,Computed ROE (8.53%) differs from companies.xlsx source (13.64%) by 5.11pp. TCS confirmed as known source data entry error per project documentation.
