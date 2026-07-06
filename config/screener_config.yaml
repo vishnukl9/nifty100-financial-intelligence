@@ -1,0 +1,55 @@
+# screener_config.yaml
+# Nifty 100 Financial Intelligence Platform
+# All screening thresholds defined here
+# Analysts can edit this file without touching any Python code
+
+presets:
+
+  quality_compounder:
+    description: "High quality companies with strong ROE, low debt and positive FCF"
+    filters:
+      return_on_equity_pct_min: 15.0
+      debt_to_equity_max: 1.0
+      free_cash_flow_cr_min: 0.0
+      sales_cagr_5yr_min: 10.0
+    rank_by: composite_quality_score
+
+  value_pick:
+    description: "Undervalued companies trading at reasonable multiples"
+    filters:
+      pe_ratio_max: 30.0
+      pb_ratio_max: 5.0
+      debt_to_equity_max: 2.0
+      dividend_yield_pct_min: 1.0
+    rank_by: dividend_yield_pct
+
+  growth_accelerator:
+    description: "High growth companies with strong revenue and profit momentum"
+    filters:
+      net_profit_cagr_5yr_min: 20.0
+      sales_cagr_5yr_min: 15.0
+      debt_to_equity_max: 2.0
+    rank_by: net_profit_cagr_5yr
+
+  dividend_champion:
+    description: "Consistent dividend paying companies with healthy FCF"
+    filters:
+      dividend_yield_pct_min: 2.0
+      free_cash_flow_cr_min: 0.0
+    rank_by: dividend_yield_pct
+
+  debt_free_blue_chip:
+    description: "Zero debt companies with strong ROE and large revenue base"
+    filters:
+      debt_to_equity_max: 0.0
+      return_on_equity_pct_min: 12.0
+      sales_min: 5000.0
+    rank_by: return_on_equity_pct
+
+  turnaround_watch:
+    description: "Companies showing revenue recovery with improving cash flow"
+    filters:
+      sales_cagr_3yr_min: 15.0
+      free_cash_flow_cr_min: 0.0
+      return_on_equity_pct_min: 10.0
+    rank_by: sales_cagr_3yr
