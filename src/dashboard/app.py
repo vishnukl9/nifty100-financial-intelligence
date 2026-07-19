@@ -2,8 +2,10 @@ import streamlit as st
 import sys
 import os
 import pandas as pd
+import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import sqlite3
 
 project_path = r'C:\Users\VISHNU\Downloads\nifty100_project'
 sys.path.append(project_path)
@@ -25,7 +27,7 @@ st.sidebar.markdown("---")
 # Navigation
 page = st.sidebar.radio(
     "📑 Select Screen",
-    ["🏠 Home", "👤 Profile", "🔍 Screener"]
+    ["🏠 Home", "👤 Profile", "🔍 Screener", "👥 Peers", "📈 Trends"]
 )
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -255,7 +257,7 @@ elif page == "👤 Profile":
         else:
             st.error(f"Company {ticker} not found")
 
-            # ════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════
 # SCREENER SCREEN
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -272,8 +274,6 @@ elif page == "🔍 Screener":
     # ── Preset buttons ─────────────────────────────────────────────────
     st.subheader("Quick Presets")
     col1, col2, col3, col4, col5, col6 = st.columns(6)
-    
-    preset_names = list(config['presets'].keys())
     
     with col1:
         if st.button("Quality"):
@@ -299,37 +299,31 @@ elif page == "🔍 Screener":
     # ── Filter sliders ─────────────────────────────────────────────────
     st.subheader("Custom Filters")
     
-    col1, col2 = st.columns([1, 3])
+    filters = {}
     
-    with col1:
-        st.write("**Metric Ranges:**")
+    # ROE min
+    roe_min = st.slider("ROE Min (%)", 0.0, 50.0, 10.0, step=1.0)
+    filters['return_on_equity_pct_min'] = roe_min
     
-    with col2:
-        filters = {}
-        
-        # ROE min
-        roe_min = st.slider("ROE Min (%)", 0.0, 50.0, 10.0, step=1.0)
-        filters['return_on_equity_pct_min'] = roe_min
-        
-        # D/E max
-        de_max = st.slider("D/E Max", 0.0, 5.0, 2.0, step=0.1)
-        filters['debt_to_equity_max'] = de_max
-        
-        # FCF min
-        fcf_min = st.slider("FCF Min (Cr)", 0.0, 10000.0, 1000.0, step=500.0)
-        filters['free_cash_flow_cr_min'] = fcf_min
-        
-        # Revenue CAGR 5yr min
-        rev_cagr_min = st.slider("Revenue CAGR 5yr Min (%)", 0.0, 50.0, 10.0, step=1.0)
-        filters['sales_cagr_5yr_min'] = rev_cagr_min
-        
-        # P/E max
-        pe_max = st.slider("P/E Max", 10.0, 100.0, 30.0, step=2.0)
-        filters['pe_ratio_max'] = pe_max
-        
-        # Dividend Yield min
-        div_yield_min = st.slider("Dividend Yield Min (%)", 0.0, 10.0, 2.0, step=0.5)
-        filters['dividend_yield_pct_min'] = div_yield_min
+    # D/E max
+    de_max = st.slider("D/E Max", 0.0, 5.0, 2.0, step=0.1)
+    filters['debt_to_equity_max'] = de_max
+    
+    # FCF min
+    fcf_min = st.slider("FCF Min (Cr)", 0.0, 10000.0, 1000.0, step=500.0)
+    filters['free_cash_flow_cr_min'] = fcf_min
+    
+    # Revenue CAGR 5yr min
+    rev_cagr_min = st.slider("Revenue CAGR 5yr Min (%)", 0.0, 50.0, 10.0, step=1.0)
+    filters['sales_cagr_5yr_min'] = rev_cagr_min
+    
+    # P/E max
+    pe_max = st.slider("P/E Max", 10.0, 100.0, 30.0, step=2.0)
+    filters['pe_ratio_max'] = pe_max
+    
+    # Dividend Yield min
+    div_yield_min = st.slider("Dividend Yield Min (%)", 0.0, 10.0, 2.0, step=0.5)
+    filters['dividend_yield_pct_min'] = div_yield_min
     
     # Apply filters
     filtered = apply_filters(screener_df, filters)
@@ -341,8 +335,8 @@ elif page == "🔍 Screener":
     
     # Display results table
     display_cols = ['company_id', 'broad_sector', 'return_on_equity_pct',
-                'debt_to_equity', 'free_cash_flow_cr', 'sales_cagr_5yr',
-                'pe_ratio']
+                    'debt_to_equity', 'free_cash_flow_cr', 'sales_cagr_5yr',
+                    'pe_ratio']
     
     result_df = filtered[display_cols].copy()
     result_df = result_df.sort_values('return_on_equity_pct', ascending=False, na_position='last')
@@ -359,6 +353,86 @@ elif page == "🔍 Screener":
             mime="text/csv",
             key="screener_download"
         )
+
+# ════════════════════════════════════════════════════════════════════════════
+# PEER COMPARISON SCREEN
+# ════════════════════════════════════════════════════════════════════════════
+
+elif page == "👥 Peers":
+    st.title("👥 Peer Comparison")
+    
+    conn = sqlite3.connect('data/nifty100.db')
+    peer_pcts = pd.read_sql_query("SELECT * FROM peer_percentiles", conn)
+    conn.close()
+    
+    group_name = st.selectbox("Select Peer Group", peer_pcts['peer_group_name'].unique())
+    
+    company = st.selectbox("Select Company", 
+                          peer_pcts[peer_pcts['peer_group_name']==group_name]['company_id'].unique())
+    
+    group_data = peer_pcts[peer_pcts['peer_group_name']==group_name]
+    
+    if len(group_data) > 0:
+        st.subheader(f"{company} vs {group_name} Peers")
+        
+        metrics = ['return_on_equity_pct', 'return_on_capital_pct', 'net_profit_margin_pct',
+                  'debt_to_equity', 'free_cash_flow_cr', 'net_profit_cagr_5yr',
+                  'sales_cagr_5yr', 'interest_coverage']
+        
+        company_vals = []
+        group_avg_vals = []
+        metric_labels = []
+        
+        for metric in metrics:
+            metric_data = group_data[group_data['metric']==metric]
+            if len(metric_data) > 0:
+                comp_val = metric_data[metric_data['company_id']==company]['percentile_rank'].values
+                company_vals.append(float(comp_val[0]) if len(comp_val)>0 else 0.5)
+                group_avg_vals.append(metric_data['percentile_rank'].mean())
+                metric_labels.append(metric.replace('_', ' ').title()[:15])
+        
+        if len(company_vals) > 0:
+            fig = go.Figure()
+            fig.add_trace(go.Scatterpolar(r=company_vals, theta=metric_labels,
+                                         fill='toself', name=company))
+            fig.add_trace(go.Scatterpolar(r=group_avg_vals, theta=metric_labels,
+                                         fill='toself', name='Peer Avg', opacity=0.3))
+            fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0,1])), height=500)
+            st.plotly_chart(fig, use_container_width=True, key=f"peer_radar_{company}")
+
+# ════════════════════════════════════════════════════════════════════════════
+# TRENDS SCREEN
+# ════════════════════════════════════════════════════════════════════════════
+
+elif page == "📈 Trends":
+    st.title("📈 Trend Analysis")
+    
+    companies_df = db.get_companies()
+    company_list = sorted(companies_df['id'].unique().tolist())
+    
+    ticker = st.selectbox("Select Company", company_list, key="trends_ticker")
+    
+    if ticker:
+        company_data = db.get_ratios(ticker=ticker).sort_values('year')
+        
+        if len(company_data) > 1:
+            st.subheader(f"{ticker} — 10-Year Trends")
+            
+            metrics_options = ['return_on_equity_pct', 'return_on_capital_pct', 
+                             'net_profit_margin_pct', 'sales_cagr_5yr', 'debt_to_equity']
+            
+            selected_metrics = st.multiselect("Select Metrics", metrics_options, 
+                                             default=['return_on_equity_pct'])
+            
+            if selected_metrics:
+                fig = go.Figure()
+                for metric in selected_metrics:
+                    fig.add_trace(go.Scatter(x=company_data['year'],
+                                           y=pd.to_numeric(company_data[metric], errors='coerce'),
+                                           name=metric.replace('_', ' ').title(),
+                                           mode='lines+markers'))
+                fig.update_layout(title=f"{ticker} Trends", height=500, hovermode='x unified')
+                st.plotly_chart(fig, use_container_width=True, key=f"trends_{ticker}")
 
 st.sidebar.markdown("---")
 st.sidebar.caption("📊 Sprint 4 — Streamlit Dashboard")
