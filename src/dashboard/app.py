@@ -25,7 +25,7 @@ st.sidebar.markdown("---")
 # Navigation
 page = st.sidebar.radio(
     "📑 Select Screen",
-    ["🏠 Home", "👤 Profile"]
+    ["🏠 Home", "👤 Profile", "🔍 Screener"]
 )
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -254,6 +254,111 @@ elif page == "👤 Profile":
                 st.error(f"No financial data for {ticker}")
         else:
             st.error(f"Company {ticker} not found")
+
+            # ════════════════════════════════════════════════════════════════════════════
+# SCREENER SCREEN
+# ════════════════════════════════════════════════════════════════════════════
+
+elif page == "🔍 Screener":
+    st.title("🔍 Investment Screener")
+    st.markdown("Filter 92 companies by 10 financial metrics")
+    
+    # Load screener data
+    from src.screener.engine import load_screener_data, apply_filters, load_config
+    
+    screener_df = load_screener_data()
+    config = load_config()
+    
+    # ── Preset buttons ─────────────────────────────────────────────────
+    st.subheader("Quick Presets")
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    
+    preset_names = list(config['presets'].keys())
+    
+    with col1:
+        if st.button("Quality"):
+            st.session_state.preset = "quality_compounder"
+    with col2:
+        if st.button("Value"):
+            st.session_state.preset = "value_pick"
+    with col3:
+        if st.button("Growth"):
+            st.session_state.preset = "growth_accelerator"
+    with col4:
+        if st.button("Dividend"):
+            st.session_state.preset = "dividend_champion"
+    with col5:
+        if st.button("Debt-Free"):
+            st.session_state.preset = "debt_free_blue_chip"
+    with col6:
+        if st.button("Turnaround"):
+            st.session_state.preset = "turnaround_watch"
+    
+    st.markdown("---")
+    
+    # ── Filter sliders ─────────────────────────────────────────────────
+    st.subheader("Custom Filters")
+    
+    col1, col2 = st.columns([1, 3])
+    
+    with col1:
+        st.write("**Metric Ranges:**")
+    
+    with col2:
+        filters = {}
+        
+        # ROE min
+        roe_min = st.slider("ROE Min (%)", 0.0, 50.0, 10.0, step=1.0)
+        filters['return_on_equity_pct_min'] = roe_min
+        
+        # D/E max
+        de_max = st.slider("D/E Max", 0.0, 5.0, 2.0, step=0.1)
+        filters['debt_to_equity_max'] = de_max
+        
+        # FCF min
+        fcf_min = st.slider("FCF Min (Cr)", 0.0, 10000.0, 1000.0, step=500.0)
+        filters['free_cash_flow_cr_min'] = fcf_min
+        
+        # Revenue CAGR 5yr min
+        rev_cagr_min = st.slider("Revenue CAGR 5yr Min (%)", 0.0, 50.0, 10.0, step=1.0)
+        filters['sales_cagr_5yr_min'] = rev_cagr_min
+        
+        # P/E max
+        pe_max = st.slider("P/E Max", 10.0, 100.0, 30.0, step=2.0)
+        filters['pe_ratio_max'] = pe_max
+        
+        # Dividend Yield min
+        div_yield_min = st.slider("Dividend Yield Min (%)", 0.0, 10.0, 2.0, step=0.5)
+        filters['dividend_yield_pct_min'] = div_yield_min
+    
+    # Apply filters
+    filtered = apply_filters(screener_df, filters)
+    
+    st.markdown("---")
+    
+    # ── Results ────────────────────────────────────────────────────────
+    st.subheader(f"Results: {len(filtered)} companies match your filters")
+    
+    # Display results table
+    display_cols = ['company_id', 'broad_sector', 'return_on_equity_pct',
+                'debt_to_equity', 'free_cash_flow_cr', 'sales_cagr_5yr',
+                'pe_ratio']
+    
+    result_df = filtered[display_cols].copy()
+    result_df = result_df.sort_values('return_on_equity_pct', ascending=False, na_position='last')
+    
+    st.dataframe(result_df, use_container_width=True, hide_index=True)
+    
+    # Download CSV
+    if len(filtered) > 0:
+        csv = result_df.to_csv(index=False)
+        st.download_button(
+            label="📥 Download Results as CSV",
+            data=csv,
+            file_name=f"screener_results_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.csv",
+            mime="text/csv",
+            key="screener_download"
+        )
 
 st.sidebar.markdown("---")
 st.sidebar.caption("📊 Sprint 4 — Streamlit Dashboard")
