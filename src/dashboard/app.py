@@ -27,7 +27,7 @@ st.sidebar.markdown("---")
 # Navigation
 page = st.sidebar.radio(
     "📑 Select Screen",
-    ["🏠 Home", "👤 Profile", "🔍 Screener", "👥 Peers", "📈 Trends"]
+    ["🏠 Home", "👤 Profile", "🔍 Screener", "👥 Peers", "📈 Trends", "🏭 Sectors", "💰 Capital"]
 )
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -228,7 +228,6 @@ elif page == "👤 Profile":
                 if len(company_data) > 1:
                     st.subheader("10-Year Return Metrics")
                     
-                    # ROE + ROCE dual-axis (ONLY ONE CHART - NO DUPLICATES)
                     fig = go.Figure()
                     fig.add_trace(go.Scatter(
                         x=company_data['year'],
@@ -265,13 +264,11 @@ elif page == "🔍 Screener":
     st.title("🔍 Investment Screener")
     st.markdown("Filter 92 companies by 10 financial metrics")
     
-    # Load screener data
     from src.screener.engine import load_screener_data, apply_filters, load_config
     
     screener_df = load_screener_data()
     config = load_config()
     
-    # ── Preset buttons ─────────────────────────────────────────────────
     st.subheader("Quick Presets")
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     
@@ -296,44 +293,34 @@ elif page == "🔍 Screener":
     
     st.markdown("---")
     
-    # ── Filter sliders ─────────────────────────────────────────────────
     st.subheader("Custom Filters")
     
     filters = {}
     
-    # ROE min
     roe_min = st.slider("ROE Min (%)", 0.0, 50.0, 10.0, step=1.0)
     filters['return_on_equity_pct_min'] = roe_min
     
-    # D/E max
     de_max = st.slider("D/E Max", 0.0, 5.0, 2.0, step=0.1)
     filters['debt_to_equity_max'] = de_max
     
-    # FCF min
     fcf_min = st.slider("FCF Min (Cr)", 0.0, 10000.0, 1000.0, step=500.0)
     filters['free_cash_flow_cr_min'] = fcf_min
     
-    # Revenue CAGR 5yr min
     rev_cagr_min = st.slider("Revenue CAGR 5yr Min (%)", 0.0, 50.0, 10.0, step=1.0)
     filters['sales_cagr_5yr_min'] = rev_cagr_min
     
-    # P/E max
     pe_max = st.slider("P/E Max", 10.0, 100.0, 30.0, step=2.0)
     filters['pe_ratio_max'] = pe_max
     
-    # Dividend Yield min
     div_yield_min = st.slider("Dividend Yield Min (%)", 0.0, 10.0, 2.0, step=0.5)
     filters['dividend_yield_pct_min'] = div_yield_min
     
-    # Apply filters
     filtered = apply_filters(screener_df, filters)
     
     st.markdown("---")
     
-    # ── Results ────────────────────────────────────────────────────────
     st.subheader(f"Results: {len(filtered)} companies match your filters")
     
-    # Display results table
     display_cols = ['company_id', 'broad_sector', 'return_on_equity_pct',
                     'debt_to_equity', 'free_cash_flow_cr', 'sales_cagr_5yr',
                     'pe_ratio']
@@ -343,7 +330,6 @@ elif page == "🔍 Screener":
     
     st.dataframe(result_df, use_container_width=True, hide_index=True)
     
-    # Download CSV
     if len(filtered) > 0:
         csv = result_df.to_csv(index=False)
         st.download_button(
@@ -433,6 +419,102 @@ elif page == "📈 Trends":
                                            mode='lines+markers'))
                 fig.update_layout(title=f"{ticker} Trends", height=500, hovermode='x unified')
                 st.plotly_chart(fig, use_container_width=True, key=f"trends_{ticker}")
+
+# ════════════════════════════════════════════════════════════════════════════
+# SECTORS SCREEN
+# ════════════════════════════════════════════════════════════════════════════
+
+elif page == "🏭 Sectors":
+    st.title("🏭 Sector Analysis")
+    
+    conn = sqlite3.connect('data/nifty100.db')
+    sector_agg = pd.read_sql_query("SELECT * FROM sector_analytics", conn)
+    conn.close()
+    
+    st.subheader("Median KPIs by Sector")
+    
+    st.dataframe(sector_agg, use_container_width=True, hide_index=True)
+    
+    st.markdown("---")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        fig = go.Figure(data=[
+            go.Bar(x=sector_agg['broad_sector'], 
+                   y=sector_agg['median_roe'],
+                   marker=dict(color='#1f4e79'))
+        ])
+        fig.update_layout(title="Median ROE by Sector", height=400)
+        st.plotly_chart(fig, use_container_width=True, key="sector_roe")
+    
+    with col2:
+        fig = go.Figure(data=[
+            go.Bar(x=sector_agg['broad_sector'],
+                   y=sector_agg['median_rev_cagr_5yr'],
+                   marker=dict(color='#70ad47'))
+        ])
+        fig.update_layout(title="Median Revenue CAGR 5yr by Sector", height=400)
+        st.plotly_chart(fig, use_container_width=True, key="sector_cagr")
+
+# ════════════════════════════════════════════════════════════════════════════
+# CAPITAL ALLOCATION SCREEN
+# ════════════════════════════════════════════════════════════════════════════
+
+elif page == "💰 Capital":
+    st.title("💰 Capital Allocation Analysis")
+    
+    companies_df = db.get_companies()
+    company_list = sorted(companies_df['id'].unique().tolist())
+    
+    ticker = st.selectbox("Select Company", company_list, key="capital_ticker")
+    
+    if ticker:
+        company_data = db.get_ratios(ticker=ticker).sort_values('year')
+        
+        if len(company_data) > 1:
+            st.subheader(f"{ticker} — Capital Allocation Trends")
+            
+            latest = company_data.iloc[-1]
+            
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                fcf = float(latest.get('free_cash_flow_cr', 0))
+                st.metric("Latest FCF", f"₹{fcf:.0f}Cr")
+            with col2:
+                cfo = float(latest.get('operating_activity', 0))
+                st.metric("CFO", f"₹{cfo:.0f}Cr")
+            with col3:
+                cfi = float(latest.get('investing_activity', 0))
+                st.metric("CFI", f"₹{cfi:.0f}Cr")
+            with col4:
+                cff = float(latest.get('financing_activity', 0))
+                st.metric("CFF", f"₹{cff:.0f}Cr")
+            
+            st.markdown("---")
+            
+            st.subheader("Cash Flow Waterfall (Latest Year)")
+            
+            fig = go.Figure(data=[
+                go.Bar(name='Operating', x=[ticker], y=[cfo], marker_color='#70ad47'),
+                go.Bar(name='Investing', x=[ticker], y=[cfi], marker_color='#ed7d31'),
+                go.Bar(name='Financing', x=[ticker], y=[cff], marker_color='#c5504e'),
+            ], layout=go.Layout(barmode='relative', height=400))
+            
+            st.plotly_chart(fig, use_container_width=True, key=f"capital_waterfall_{ticker}")
+            
+            st.subheader("10-Year Cash Flow Trends")
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=company_data['year'],
+                y=pd.to_numeric(company_data['free_cash_flow_cr'], errors='coerce'),
+                name='FCF',
+                mode='lines+markers',
+                line=dict(color='#1f4e79', width=2)
+            ))
+            fig.update_layout(title="Free Cash Flow Trend", height=400)
+            st.plotly_chart(fig, use_container_width=True, key=f"capital_fcf_{ticker}")
 
 st.sidebar.markdown("---")
 st.sidebar.caption("📊 Sprint 4 — Streamlit Dashboard")

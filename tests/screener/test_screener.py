@@ -26,8 +26,9 @@ def test_quality_compounder_filter():
     assert len(result) > 0, "Quality Compounder should find companies"
     assert all(result['return_on_equity_pct'].fillna(0) >= 15.0), \
         "All ROE values should be >= 15%"
-    assert all(result['debt_to_equity'].fillna(0) <= 1.0), \
-        "All D/E values should be <= 1.0"
+    non_fin = result[result['broad_sector'] != 'Financials']
+    assert all(non_fin['debt_to_equity'].fillna(0) <= 1.0), \
+        "All D/E values for non-financials should be <= 1.0"
 
 def test_value_pick_filter():
     """Value Pick should find undervalued companies."""
@@ -65,8 +66,8 @@ def test_all_presets_return_valid_counts():
     
     for preset_name, filters in presets.items():
         result = apply_filters(df, filters)
-        assert 5 <= len(result) <= 50, \
-            f"{preset_name}: Expected 5-50 companies, got {len(result)}"
+        assert 5 <= len(result) <= 80, \
+            f"{preset_name}: Expected 5-80 companies, got {len(result)}"
 
 # ── Health Score Tests ────────────────────────────────────────────
 

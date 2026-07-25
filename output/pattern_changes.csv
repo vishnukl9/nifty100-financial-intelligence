@@ -1,0 +1,35 @@
+company_id,year,previous_pattern,new_pattern
+ABB,2024-03,Aggressive Expander,Reinvestor
+ADANIENSOL,2024-03,Aggressive Expander,Reinvestor
+ADANIENT,2024-03,Reinvestor,Aggressive Expander
+ADANIGREEN,2024-03,Reinvestor,Aggressive Expander
+AXISBANK,2024-03,Aggressive Expander,Distress Signal
+BAJAJ-AUTO,2024-03,Asset Seller,Reinvestor
+BANKBARODA,2024-03,Contraction,Distress Signal
+BEL,2024-03,Asset Seller,Reinvestor
+BRITANNIA,2024-03,Reinvestor,Asset Seller
+CANBK,2024-03,Distress Signal,Reinvestor
+DLF,2024-03,Reinvestor,Aggressive Expander
+GAIL,2024-03,Aggressive Expander,Reinvestor
+GODREJCP,2024-03,Reinvestor,Aggressive Expander
+HAVELLS,2024-03,Asset Seller,Reinvestor
+HDFCBANK,2024-03,Aggressive Expander,Asset Seller
+HDFCLIFE,2024-03,Aggressive Expander,Reinvestor
+ICICIBANK,2024-03,Distress Signal,Aggressive Expander
+ICICIPRULI,2024-03,Reinvestor,Restructuring
+INDUSINDBK,2024-03,Distress Signal,Contraction
+IRFC,2024-03,Distress Signal,Reinvestor
+ITC,2024-03,Reinvestor,Asset Seller
+JINDALSTEL,2024-03,Reinvestor,Aggressive Expander
+JIOFIN,2024-03,Reinvestor,Restructuring
+KOTAKBANK,2024-03,Distress Signal,Aggressive Expander
+LODHA,2024-03,Asset Seller,Aggressive Expander
+LT,2024-03,Reinvestor,Asset Seller
+MOTHERSON,2024-03,Reinvestor,Aggressive Expander
+PNB,2024-03,Aggressive Expander,Distress Signal
+RELIANCE,2024-03,Aggressive Expander,Reinvestor
+SUNPHARMA,2024-03,Aggressive Expander,Reinvestor
+TATACONSUM,2024-03,Reinvestor,Aggressive Expander
+TATAPOWER,2024-03,Aggressive Expander,Reinvestor
+TITAN,2024-03,Aggressive Expander,Reinvestor
+TORNTPHARM,2024-03,Aggressive Expander,Reinvestor

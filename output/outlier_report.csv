@@ -1,0 +1,13 @@
+company_id,broad_sector,metric,value,z_score
+ADANIGREEN,Energy,debt_to_equity,6.5953,3.1463191158530845
+RELIANCE,Energy,capex_cr,113581.0,3.0088696009192373
+INDIGO,Consumer Discretionary,return_on_equity_pct,892.57,3.6029633004686246
+INDIGO,Consumer Discretionary,operating_profit_margin_pct,16331.0,3.427000889067984
+INDIGO,Consumer Discretionary,asset_turnover,56.3863,3.603681080554082
+TATAMOTORS,Consumer Discretionary,free_cash_flow_cr,45133.0,3.3508028753585486
+PNB,Financials,return_on_equity_pct,61.31999999999999,3.3257902040768976
+HDFCBANK,Financials,operating_profit_margin_pct,-44685.0,3.613912409610131
+BAJAJHLDNG,Financials,net_profit_margin_pct,432.73,4.493179235302924
+PNB,Financials,asset_turnover,1.507,4.333179300381165
+BAJAJHLDNG,Financials,interest_coverage,3764.5,3.5833283571557666
+ICICIBANK,Financials,capex_cr,144737.0,4.408099543653696
