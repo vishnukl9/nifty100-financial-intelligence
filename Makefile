@@ -9,7 +9,7 @@ load:
 	$(PYTHON) src/etl/loader.py
 
 ratios:
-	$(PYTHON) src/etl/ratios_generator.py
+	$(PYTHON) src/analytics/ratios.py
 
 test:
 	set PYTHONPATH=. && $(PYTEST) tests/ --html=reports/pytest_report.html --self-contained-html
